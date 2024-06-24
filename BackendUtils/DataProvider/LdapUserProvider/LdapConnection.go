@@ -1,28 +1,28 @@
-package ldap
+package LdapUserProvider
 
 import (
 	"crypto/tls"
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
 	"log"
-	"main/BackendUtils/DataProvider/config"
 	"main/BackendUtils/users"
 )
 
 type Provider struct {
-	Conf *config.LdapData
+	Conf *LdapData
 	Conn *ldap.Conn
 }
 
-func (connData *Provider) Init() {
-	connData.Conf = config.GetConfig().LdapSettings
+func (connData *Provider) Init(name string) {
+	connData.Conf = InitConfig(name)
 	// The username and password we want to check
 	var err error
-
+	fmt.Println(connData.Conf.Url)
 	connData.Conn, err = ldap.DialURL(fmt.Sprintf("%s:%d", connData.Conf.Url, connData.Conf.Port))
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if connData.Conf.Starttls {
 		//defer connData.Conn.Close()
 
@@ -80,9 +80,9 @@ func (connData *Provider) GetUsersData() []users.UserData {
 }
 
 func (connData *Provider) AuthUser(username string, passwd string) users.User {
-	//searchRequest := ldap.NewSearchRequest(
+	//searchRequest := LdapUserProvider.NewSearchRequest(
 	//	fmt.Sprintf("uid=%s,%s", username, connData.Conf.Userlocation), // The base dn to search
-	//	ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+	//	LdapUserProvider.ScopeWholeSubtree, LdapUserProvider.NeverDerefAliases, 0, 0, false,
 	//	"(&(objectClass=organizationalPerson))", // The filter to apply
 	//	[]string{"dn", "userPassword"},          // A list attributes to retrieve
 	//	nil,

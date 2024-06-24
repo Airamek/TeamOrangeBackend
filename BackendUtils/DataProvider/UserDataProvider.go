@@ -1,21 +1,20 @@
 package DataProvider
 
 import (
-	"main/BackendUtils/DataProvider/config"
-	"main/BackendUtils/DataProvider/ldap"
+	"main/BackendUtils/DataProvider/LdapUserProvider"
 	"main/BackendUtils/users"
 )
 
-type DataProvider interface {
-	Init()
+type UserDataProvider interface {
+	Init(name string)
 	GetUsers() []users.User
 	GetUsersData() []users.UserData
 	AuthUser(username string, passwd string) users.User
 }
 
-func CreateProvider() DataProvider {
-	if config.GetConfig().DataProviderBackend == "ldap" {
-		return new(ldap.Provider)
+func CreateProvider(providerType string) UserDataProvider {
+	if providerType == "LdapUserProvider" {
+		return new(LdapUserProvider.Provider)
 	}
 	return nil
 }

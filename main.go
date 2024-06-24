@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	var provider = DataProvider.CreateProvider()
-	provider.Init()
+	var provider = DataProvider.CreateProvider("LdapUserProvider")
+	provider.Init("czimer-ldap")
 
 	// Create a new Gin router
 	router := gin.Default()
