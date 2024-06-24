@@ -36,7 +36,7 @@ func GetConfig() *ConfigStructure {
 	var data []byte
 	data, err = os.ReadFile("config.yaml")
 	if err != nil {
-		log.Fatalf("File exist, but it couldn't be opened")
+		log.Fatalf("File exists, but it couldn't be opened")
 	}
 	yaml.Unmarshal(data, configS)
 
