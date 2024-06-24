@@ -12,7 +12,7 @@ type UserDataProvider interface {
 	AuthUser(username string, passwd string) users.User
 }
 
-func CreateProvider(providerType string) UserDataProvider {
+func CreateProviderUser(providerType string) UserDataProvider {
 	if providerType == "LdapUserProvider" {
 		return new(LdapUserProvider.Provider)
 	}
