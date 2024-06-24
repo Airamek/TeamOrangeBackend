@@ -1,10 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"log"
 )
 import "os"
-import "fmt"
 import "gopkg.in/yaml.v3"
 
 type LdapData struct {
@@ -30,23 +30,7 @@ func GetConfig() *ConfigStructure {
 	_, err = os.Stat("config.yaml")
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "config.yaml doesn't exist, creating it now\n")
-		configS.DataProviderBackend = "ldap"
-		configS.LdapSettings.Url = "ldap://ldapserver"
-		configS.LdapSettings.Port = "389"
-		configS.LdapSettings.Dn = "dc=example,dc=com"
-		configS.LdapSettings.Binddn = "cn=Manager,dc=example,dc=com"
-		configS.LdapSettings.Starttls = false
-		configS.LdapSettings.Bindpass = "examplepass"
-		configS.LdapSettings.Userlocation = "ou=Users,dc=example,dc=com"
-		var file, _ = os.Create("config.yaml")
-		var yamlData []byte
-		yamlData, err = yaml.Marshal(configS)
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-		file.Write(yamlData)
-		return configS
+		return CreateDefaultConf()
 	}
 
 	var data []byte
@@ -56,5 +40,37 @@ func GetConfig() *ConfigStructure {
 	}
 	yaml.Unmarshal(data, configS)
 
+	return configS
+}
+
+func CreateDefaultConf() *ConfigStructure {
+	var err error
+	var configS = new(ConfigStructure)
+	configS.LdapSettings = new(LdapData)
+
+	fmt.Fprintf(os.Stderr, "config.yaml doesn't exist, creating it now\n")
+	//top level
+	configS.DataProviderBackend = "ldap"
+
+	//ldap
+	configS.LdapSettings.Url = "ldap://ldapserver"
+	configS.LdapSettings.Port = "389"
+	configS.LdapSettings.Dn = "dc=example,dc=com"
+	configS.LdapSettings.Binddn = "cn=Manager,dc=example,dc=com"
+	configS.LdapSettings.Starttls = false
+	configS.LdapSettings.Bindpass = "examplepass"
+	configS.LdapSettings.Userlocation = "ou=Users,dc=example,dc=com"
+
+	//write out structure
+	var file, _ = os.Create("config.yaml")
+	var yamlData []byte
+	yamlData, err = yaml.Marshal(configS)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	_, err = file.Write(yamlData)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 	return configS
 }
