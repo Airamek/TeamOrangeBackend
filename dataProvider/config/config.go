@@ -8,13 +8,20 @@ import "os"
 import "gopkg.in/yaml.v3"
 
 type LdapData struct {
-	Url          string
-	Port         string
-	Dn           string
-	Binddn       string
-	Bindpass     string
-	Starttls     bool
-	Userlocation string
+	Url                    string
+	Port                   string
+	Dn                     string
+	Binddn                 string
+	Bindpass               string
+	Starttls               bool
+	Userlocation           string
+	UserFilterClass        string
+	GroupFilterClass       string
+	Grouplocation          string
+	UserIdentifierAttibute string
+	UserNameAttribute      string
+	UserMailAttribute      string
+	UserMailAliasAttribute string
 }
 
 type ConfigStructure struct {
@@ -60,6 +67,13 @@ func CreateDefaultConf() *ConfigStructure {
 	configS.LdapSettings.Starttls = false
 	configS.LdapSettings.Bindpass = "examplepass"
 	configS.LdapSettings.Userlocation = "ou=Users,dc=example,dc=com"
+	configS.LdapSettings.Grouplocation = "ou=Groups,dc=example,dc=com"
+	configS.LdapSettings.UserIdentifierAttibute = "uid"
+	configS.LdapSettings.UserNameAttribute = "cn"
+	configS.LdapSettings.UserMailAttribute = "mail"
+	configS.LdapSettings.UserMailAliasAttribute = "proxyAddresses"
+	configS.LdapSettings.UserFilterClass = "person"
+	configS.LdapSettings.GroupFilterClass = "group"
 
 	//write out structure
 	var file, _ = os.Create("config.yaml")

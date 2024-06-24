@@ -10,6 +10,7 @@ type LdapUser struct {
 	displayName          string
 	displayNameCacheTime time.Time
 	name                 string
+	nameCacheTime        time.Time
 	permLevel            string
 	provider             *Provider
 	mainMail             string
@@ -29,9 +30,9 @@ func (user LdapUser) setStringProperty(propertyName string, propertyPointer *str
 func (user LdapUser) getStringProperty(propertyName string, propertyPointer *string, cacheTime *time.Time) error {
 	if time.Now().Sub(*cacheTime).Minutes() > 1 {
 		searchRequest := ldap.NewSearchRequest(
-			"uid="+user.name+","+user.provider.Conf.Userlocation,
+			user.provider.Conf.UserIdentifierAttibute+"="+user.name+","+user.provider.Conf.Userlocation,
 			ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-			fmt.Sprintf("(&(objectClass=person))"),
+			fmt.Sprintf("(&(objectClass=%s))", user.provider.Conf.UserFilterClass),
 			[]string{"dn", propertyName},
 			nil,
 		)
@@ -52,9 +53,9 @@ func (user LdapUser) getStringProperty(propertyName string, propertyPointer *str
 func (user LdapUser) getStringArrProperty(propertyName string, propertyPointer *[]string, cacheTime *time.Time) error {
 	if time.Now().Sub(*cacheTime).Minutes() > 1 {
 		searchRequest := ldap.NewSearchRequest(
-			"uid="+user.name+","+user.provider.Conf.Userlocation,
+			user.provider.Conf.UserIdentifierAttibute+"="+user.name+","+user.provider.Conf.Userlocation,
 			ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-			fmt.Sprintf("(&(objectClass=person))"),
+			fmt.Sprintf("(&(objectClass=%s))", user.provider.Conf.UserFilterClass),
 			[]string{"dn", propertyName},
 			nil,
 		)
@@ -73,16 +74,17 @@ func (user LdapUser) getStringArrProperty(propertyName string, propertyPointer *
 }
 
 func (user LdapUser) GetDisplayName() string {
-	user.getStringProperty("displayName", &user.displayName, &user.displayNameCacheTime)
+	user.getStringProperty(user.provider.Conf.UserNameAttribute, &user.displayName, &user.displayNameCacheTime)
 	return user.displayName
 }
 
 func (user LdapUser) GetName() string {
+	user.getStringProperty(user.provider.Conf.UserIdentifierAttibute, &user.name, &user.nameCacheTime)
 	return user.name
 }
 
 func (user LdapUser) GetMainEmail() string {
-	user.getStringProperty("mailLocalAddress", &user.mainMail, &user.mainMailCacheTime)
+	user.getStringProperty(user.provider.Conf.UserMailAttribute, &user.mainMail, &user.mainMailCacheTime)
 	return user.mainMail
 }
 
@@ -90,7 +92,7 @@ func (user LdapUser) SetMainEmail() {
 
 }
 func (user LdapUser) GetAliasEmails() []string {
-	user.getStringArrProperty("mail", &user.aliasMails, &user.aliasMailsCacheTime)
+	user.getStringArrProperty(user.provider.Conf.UserMailAliasAttribute, &user.aliasMails, &user.aliasMailsCacheTime)
 	return user.aliasMails
 }
 func (user LdapUser) AddAliasEmail(address string) {

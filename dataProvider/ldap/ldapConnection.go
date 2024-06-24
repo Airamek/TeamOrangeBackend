@@ -48,8 +48,8 @@ func (connData *Provider) GetUsers() []users.User {
 	searchRequest := ldap.NewSearchRequest(
 		connData.Conf.Userlocation,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(&(objectClass=organizationalPerson))"),
-		[]string{"dn", "uid"},
+		fmt.Sprintf("(&(objectClass=%s))", connData.Conf.UserFilterClass),
+		[]string{"dn", connData.Conf.UserNameAttribute},
 		nil,
 	)
 	searchResult, err := connData.Conn.Search(searchRequest)
@@ -61,7 +61,7 @@ func (connData *Provider) GetUsers() []users.User {
 
 	for _, entry := range searchResult.Entries {
 		user := new(LdapUser)
-		user.name = entry.GetAttributeValue("uid")
+		user.name = entry.GetAttributeValue(connData.Conf.UserIdentifierAttibute)
 		user.permLevel = "user"
 		user.provider = connData
 		userArr = append(userArr, user)
@@ -71,17 +71,23 @@ func (connData *Provider) GetUsers() []users.User {
 }
 
 func (connData *Provider) AuthUser(username string, passwd string) bool {
-	searchRequest := ldap.NewSearchRequest(
-		fmt.Sprintf("uid=%s,%s", username, connData.Conf.Userlocation), // The base dn to search
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectClass=organizationalPerson))", // The filter to apply
-		[]string{"dn", "userPassword"},          // A list attributes to retrieve
-		nil,
-	)
-	searchResult, err := connData.Conn.Search(searchRequest)
+	//searchRequest := ldap.NewSearchRequest(
+	//	fmt.Sprintf("uid=%s,%s", username, connData.Conf.Userlocation), // The base dn to search
+	//	ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+	//	"(&(objectClass=organizationalPerson))", // The filter to apply
+	//	[]string{"dn", "userPassword"},          // A list attributes to retrieve
+	//	nil,
+	//)
+	//searchResult, err := connData.Conn.Search(searchRequest)
+	//if err != nil {
+	//	return false
+	//}
+	//encoder := SSHAEncoder{}
+	//return encoder.Matches([]byte(searchResult.Entries[0].GetAttributeValue("userPassword")), []byte(passwd))
+	var err = connData.Conn.Bind(username, passwd)
 	if err != nil {
+		log.Fatal(err)
 		return false
 	}
-	encoder := SSHAEncoder{}
-	return encoder.Matches([]byte(searchResult.Entries[0].GetAttributeValue("userPassword")), []byte(passwd))
+	return true
 }
