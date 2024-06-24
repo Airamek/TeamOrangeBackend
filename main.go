@@ -11,7 +11,7 @@ func main() {
 
 	users := provider.GetUsers()
 	for _, user := range users {
-		fmt.Print(user.GetDisplayName() + " " + user.GetMainEmail())
+		fmt.Print(user.GetName() + " : " + user.GetDisplayName() + " " + user.GetMainEmail())
 		for _, mail := range user.GetAliasEmails() {
 			fmt.Print(" " + mail + " ")
 		}

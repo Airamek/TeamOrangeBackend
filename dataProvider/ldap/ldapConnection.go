@@ -23,13 +23,13 @@ func (connData *Provider) Init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	if connData.Conf.Starttls {
-		defer connData.Conn.Close()
+		//defer connData.Conn.Close()
 
 		// Reconnect with TLS
 		err = connData.Conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
 		if err != nil {
+
 			log.Fatal(err)
 		}
 
@@ -49,7 +49,7 @@ func (connData *Provider) GetUsers() []users.User {
 		connData.Conf.Userlocation,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		fmt.Sprintf("(&(objectClass=%s))", connData.Conf.UserFilterClass),
-		[]string{"dn", connData.Conf.UserNameAttribute},
+		[]string{"dn", connData.Conf.UserIdentifierAttibute},
 		nil,
 	)
 	searchResult, err := connData.Conn.Search(searchRequest)
@@ -86,7 +86,7 @@ func (connData *Provider) AuthUser(username string, passwd string) bool {
 	//return encoder.Matches([]byte(searchResult.Entries[0].GetAttributeValue("userPassword")), []byte(passwd))
 	var err = connData.Conn.Bind(username, passwd)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return false
 	}
 	return true

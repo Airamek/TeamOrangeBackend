@@ -30,7 +30,7 @@ func (user LdapUser) setStringProperty(propertyName string, propertyPointer *str
 func (user LdapUser) getStringProperty(propertyName string, propertyPointer *string, cacheTime *time.Time) error {
 	if time.Now().Sub(*cacheTime).Minutes() > 1 {
 		searchRequest := ldap.NewSearchRequest(
-			user.provider.Conf.UserIdentifierAttibute+"="+user.name+","+user.provider.Conf.Userlocation,
+			fmt.Sprintf("%s=%s,%s", user.provider.Conf.UserSearchAttribute, user.name, user.provider.Conf.Userlocation),
 			ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 			fmt.Sprintf("(&(objectClass=%s))", user.provider.Conf.UserFilterClass),
 			[]string{"dn", propertyName},
@@ -53,7 +53,7 @@ func (user LdapUser) getStringProperty(propertyName string, propertyPointer *str
 func (user LdapUser) getStringArrProperty(propertyName string, propertyPointer *[]string, cacheTime *time.Time) error {
 	if time.Now().Sub(*cacheTime).Minutes() > 1 {
 		searchRequest := ldap.NewSearchRequest(
-			user.provider.Conf.UserIdentifierAttibute+"="+user.name+","+user.provider.Conf.Userlocation,
+			fmt.Sprintf("%s=%s,%s", user.provider.Conf.UserSearchAttribute, user.name, user.provider.Conf.Userlocation),
 			ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 			fmt.Sprintf("(&(objectClass=%s))", user.provider.Conf.UserFilterClass),
 			[]string{"dn", propertyName},
@@ -79,7 +79,6 @@ func (user LdapUser) GetDisplayName() string {
 }
 
 func (user LdapUser) GetName() string {
-	user.getStringProperty(user.provider.Conf.UserIdentifierAttibute, &user.name, &user.nameCacheTime)
 	return user.name
 }
 

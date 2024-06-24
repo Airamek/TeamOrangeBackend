@@ -22,6 +22,7 @@ type LdapData struct {
 	UserNameAttribute      string
 	UserMailAttribute      string
 	UserMailAliasAttribute string
+	UserSearchAttribute    string
 }
 
 type ConfigStructure struct {
@@ -67,6 +68,7 @@ func CreateDefaultConf() *ConfigStructure {
 	configS.LdapSettings.Starttls = false
 	configS.LdapSettings.Bindpass = "examplepass"
 	configS.LdapSettings.Userlocation = "ou=Users,dc=example,dc=com"
+	configS.LdapSettings.UserSearchAttribute = "cn"
 	configS.LdapSettings.Grouplocation = "ou=Groups,dc=example,dc=com"
 	configS.LdapSettings.UserIdentifierAttibute = "uid"
 	configS.LdapSettings.UserNameAttribute = "cn"
