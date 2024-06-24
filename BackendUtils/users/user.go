@@ -9,4 +9,12 @@ type User interface {
 	GetAliasEmails() []string
 	AddAliasEmail(address string)
 	DeleteAliasEmail(address string)
+	GetData() UserData
+}
+
+type UserData struct {
+	Name        string
+	DisplayName string
+	MainEmail   string
+	AliasEmails []string
 }

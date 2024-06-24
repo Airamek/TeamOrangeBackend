@@ -1,15 +1,16 @@
-package dataProvider
+package DataProvider
 
 import (
-	"main/dataProvider/config"
-	"main/dataProvider/ldap"
-	"main/users"
+	"main/BackendUtils/DataProvider/config"
+	"main/BackendUtils/DataProvider/ldap"
+	"main/BackendUtils/users"
 )
 
 type DataProvider interface {
 	Init()
 	GetUsers() []users.User
-	AuthUser(username string, passwd string) bool
+	GetUsersData() []users.UserData
+	AuthUser(username string, passwd string) users.User
 }
 
 func CreateProvider() DataProvider {

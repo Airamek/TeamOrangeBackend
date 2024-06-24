@@ -3,6 +3,8 @@ package ldap
 import (
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
+	"log"
+	"main/BackendUtils/users"
 	"time"
 )
 
@@ -19,8 +21,22 @@ type LdapUser struct {
 	aliasMailsCacheTime  time.Time
 }
 
-func (user LdapUser) checkIfPropertyExists(propertyName string) {
-
+func (user LdapUser) checkIfPropertyExists(propertyName string) bool {
+	searchRequest := ldap.NewSearchRequest(
+		fmt.Sprintf("%s=%s,%s", user.provider.Conf.UserSearchAttribute, user.name, user.provider.Conf.Userlocation),
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		fmt.Sprintf("(&(objectClass=%s))", user.provider.Conf.UserFilterClass),
+		[]string{"dn", propertyName},
+		nil,
+	)
+	searchResult, err := user.provider.Conn.Search(searchRequest)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(searchResult.Entries) == 0 {
+		return false
+	}
+	return true
 }
 
 func (user LdapUser) setStringProperty(propertyName string, propertyPointer *string, cacheTime *time.Time) {
@@ -103,4 +119,12 @@ func (user LdapUser) DeleteAliasEmail(address string) {
 
 func (user LdapUser) SetDisplayName() {
 
+}
+func (user LdapUser) GetData() users.UserData {
+	data := users.UserData{}
+	data.Name = user.GetName()
+	data.DisplayName = user.GetDisplayName()
+	data.MainEmail = user.GetMainEmail()
+	data.AliasEmails = user.GetAliasEmails()
+	return data
 }

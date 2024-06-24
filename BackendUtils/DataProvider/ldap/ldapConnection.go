@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
 	"log"
-	"main/dataProvider/config"
-	"main/users"
+	"main/BackendUtils/DataProvider/config"
+	"main/BackendUtils/users"
 )
 
 type Provider struct {
@@ -19,7 +19,7 @@ func (connData *Provider) Init() {
 	// The username and password we want to check
 	var err error
 
-	connData.Conn, err = ldap.DialURL(connData.Conf.Url + ":" + connData.Conf.Port)
+	connData.Conn, err = ldap.DialURL(fmt.Sprintf("%s:%d", connData.Conf.Url, connData.Conf.Port))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,7 +70,16 @@ func (connData *Provider) GetUsers() []users.User {
 	return userArr
 }
 
-func (connData *Provider) AuthUser(username string, passwd string) bool {
+func (connData *Provider) GetUsersData() []users.UserData {
+	var usersData []users.UserData
+	users := connData.GetUsers()
+	for _, user := range users {
+		usersData = append(usersData, user.GetData())
+	}
+	return usersData
+}
+
+func (connData *Provider) AuthUser(username string, passwd string) users.User {
 	//searchRequest := ldap.NewSearchRequest(
 	//	fmt.Sprintf("uid=%s,%s", username, connData.Conf.Userlocation), // The base dn to search
 	//	ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -87,7 +96,11 @@ func (connData *Provider) AuthUser(username string, passwd string) bool {
 	var err = connData.Conn.Bind(username, passwd)
 	if err != nil {
 		log.Print(err)
-		return false
+		return nil
 	}
-	return true
+	user := new(LdapUser)
+	user.name = username
+	user.permLevel = "user"
+	user.provider = connData
+	return user
 }

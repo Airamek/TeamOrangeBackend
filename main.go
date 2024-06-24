@@ -1,20 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"main/dataProvider"
+	"github.com/gin-gonic/gin"
+	"main/BackendUtils/DataProvider"
 )
 
 func main() {
-	var provider = dataProvider.CreateProvider()
+	var provider = DataProvider.CreateProvider()
 	provider.Init()
 
-	users := provider.GetUsers()
-	for _, user := range users {
-		fmt.Print(user.GetName() + " : " + user.GetDisplayName() + " " + user.GetMainEmail())
-		for _, mail := range user.GetAliasEmails() {
-			fmt.Print(" " + mail + " ")
-		}
-		fmt.Println()
-	}
+	// Create a new Gin router
+	router := gin.Default()
+
+	// Define a route for the root URL
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(200, provider.GetUsersData())
+	})
+
+	// Run the server on port 8080
+	router.Run(":8080")
 }

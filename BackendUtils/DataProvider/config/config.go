@@ -9,7 +9,7 @@ import "gopkg.in/yaml.v3"
 
 type LdapData struct {
 	Url                    string
-	Port                   string
+	Port                   int
 	Dn                     string
 	Binddn                 string
 	Bindpass               string
@@ -62,7 +62,7 @@ func CreateDefaultConf() *ConfigStructure {
 
 	//ldap
 	configS.LdapSettings.Url = "ldap://ldapserver"
-	configS.LdapSettings.Port = "389"
+	configS.LdapSettings.Port = 389
 	configS.LdapSettings.Dn = "dc=example,dc=com"
 	configS.LdapSettings.Binddn = "cn=Manager,dc=example,dc=com"
 	configS.LdapSettings.Starttls = false
