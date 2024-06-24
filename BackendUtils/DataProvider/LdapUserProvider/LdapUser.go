@@ -22,14 +22,8 @@ type LdapUser struct {
 }
 
 func (user LdapUser) checkIfPropertyExists(propertyName string) bool {
-	searchRequest := ldap.NewSearchRequest(
-		fmt.Sprintf("%s=%s,%s", user.provider.Conf.UserSearchAttribute, user.name, user.provider.Conf.Userlocation),
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(&(objectClass=%s))", user.provider.Conf.UserFilterClass),
-		[]string{"dn", propertyName},
-		nil,
-	)
-	searchResult, err := user.provider.Conn.Search(searchRequest)
+
+	searchResult, err := performSearch(&user, propertyName, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -130,6 +124,8 @@ func performSearch(user *LdapUser, propertyName string, cacheTime *time.Time) (*
 	if err != nil {
 		return nil, err
 	}
-	*cacheTime = time.Now()
+	if cacheTime != nil {
+		*cacheTime = time.Now()
+	}
 	return searchResult, nil
 }
